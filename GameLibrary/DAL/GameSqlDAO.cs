@@ -66,10 +66,86 @@ namespace GameLibrary.DAL
                 ReccommendedAge = Convert.ToInt32(reader["recommended_age"]),
                 AvgPlayTime = Convert.ToInt32(reader["avg_play_time"]),
                 BGGRating = Convert.ToDouble(reader["bgg_rating"]),
-                BGGWeight = Convert.ToDouble(reader["bgg_weight"])
+                BGGWeight = Convert.ToDouble(reader["bgg_weight"]),
+                Quantity = Convert.ToInt32(reader["quantity"]),
             };
 
+            game.Genres.Add(Convert.ToString(reader["name"]));
+
+
             return game;
+        }
+
+        public bool AddGame(GameModel game)
+        {
+            bool gameAdded = false;
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(this.ConnectionString))
+                {
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("insert into games values (@title, @image, @desc, @min, @max, @age, @playTime, @weight, @rating, @quantity); select @@identity as id", conn);
+                    cmd.Parameters.AddWithValue("@title", game.Title);
+                    cmd.Parameters.AddWithValue("@image", game.ImageUrl);
+                    cmd.Parameters.AddWithValue("@desc", game.Description);
+                    cmd.Parameters.AddWithValue("@min", game.MinPlayers);
+                    cmd.Parameters.AddWithValue("@max", game.MaxPlayers);
+                    cmd.Parameters.AddWithValue("@age", game.ReccommendedAge);
+                    cmd.Parameters.AddWithValue("@playTime", game.AvgPlayTime);
+                    cmd.Parameters.AddWithValue("@weight", game.BGGWeight);
+                    cmd.Parameters.AddWithValue("@rating", game.BGGRating);
+                    cmd.Parameters.AddWithValue("@quantity", game.Quantity);
+
+                    int newGameId = Convert.ToInt16(cmd.ExecuteScalar());
+
+                    Dictionary<string, int> genreIds = this.GetGenreDictionary();
+
+                    foreach (string genre in game.Genres)
+                    {
+                        int genreId = genreIds[genre];
+                        cmd = new SqlCommand("insert into games_genres values (@genre, @game)", conn);
+                        cmd.Parameters.AddWithValue("@genre", genreId);
+                        cmd.Parameters.AddWithValue("@game", newGameId);
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                throw;
+            }
+
+            return gameAdded;
+        }
+
+        public Dictionary<string,int> GetGenreDictionary()
+        {
+            Dictionary<string, int> genreIds = new Dictionary<string, int>();
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(this.ConnectionString))
+                {
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("select * from genre", conn);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        string key = Convert.ToString(reader["name"]);
+                        int value = Convert.ToInt32(reader["id"]);
+                        genreIds.Add(key, value);
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                throw;
+            }
+
+            return genreIds;
         }
     }
 }
