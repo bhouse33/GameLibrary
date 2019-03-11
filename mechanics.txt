@@ -1,0 +1,38 @@
+Mechanics:
+
+Acting
+Action/Movement Programming
+Action Point Allowance System
+Area Control
+Auction/Bidding
+Betting/Wagering
+Campaign
+Card Drafting
+Cooperative Play
+Deck Building
+Dice Rolling
+Grid Movement
+Hand Management
+Memory
+Modular Board
+Paper-and-Pencil
+Partnerships
+Pattern Building
+Pattern Recognition
+Pick-up and deliver
+Player Elimination
+Press Your Luck
+Role Playing
+Roll/spin and move
+Route/network building
+Secret unit deployment
+Set Collection
+Simulation
+Tile Placement
+Trading
+Trick-taking
+Variable Phase Order
+Variable Player Powers
+Voting
+Worker Placement
+
