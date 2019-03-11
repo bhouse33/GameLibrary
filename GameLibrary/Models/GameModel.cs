@@ -7,5 +7,6 @@ namespace GameLibrary.Models
 {
     public class GameModel
     {
+        //work
     }
 }
