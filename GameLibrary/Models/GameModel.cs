@@ -18,7 +18,5 @@ namespace GameLibrary.Models
         public double BGGRating { get; set; }
         public bool IsBorrowed { get; set; }
         public string Genre { get; set; }
-
-        public IList<string> Genres { get; set; }
     }
 }
