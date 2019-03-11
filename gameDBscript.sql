@@ -61,6 +61,7 @@ CREATE TABLE game_genre(
 	constraint fk_game foreign key(game_id) references games(id)
 );
 
+
 set identity_insert games on;
 
 insert into games (id, title, [image], [description], min_players, max_players, recommended_age, avg_play_time, bgg_weight, bgg_rating, quantity)
@@ -82,4 +83,3 @@ set identity_insert games off;
 
 COMMIT TRANSACTION;
 
-select * from games
