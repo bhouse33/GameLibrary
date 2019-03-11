@@ -7,5 +7,7 @@ namespace GameLibrary.DAL
 {
     public class GameSqlDAO
     {
+        // dont do this
+
     }
 }
