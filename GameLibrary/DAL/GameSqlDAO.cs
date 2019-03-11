@@ -26,13 +26,23 @@ namespace GameLibrary.DAL
                 {
                     conn.Open();
 
-                    SqlCommand cmd = new SqlCommand("select * from games", conn);
+                    SqlCommand cmd = new SqlCommand("select * from games g join game_genre gg on g.id = gg.game_id join genre on genre.genre_id = gg.id", conn);
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
                         GameModel game = ConvertReaderToGameModel(reader);
-                        games.Add(game);
+                        if (games.Contains(game))
+                        {
+                            foreach (string genre in game.Genres)
+                            {
+                                games[games.IndexOf(game)].Genres.Add(genre);
+                            }
+                        }
+                        else
+                        {
+                            games.Add(game);
+                        }
                     }
                 }
             }

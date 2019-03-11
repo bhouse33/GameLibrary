@@ -7,6 +7,7 @@ namespace GameLibrary.Models
 {
     public class GameModel
     {
+        public int Id { get; set; }
         public string Title { get; set; }
         public string ImageUrl { get; set; }
         public string Description { get; set; }
@@ -17,6 +18,23 @@ namespace GameLibrary.Models
         public double BGGWeight { get; set; }
         public double BGGRating { get; set; }
         public bool IsBorrowed { get; set; }
-        public string Genre { get; set; }
+        public IList<string> Genres { get; set; }
+
+        public override bool Equals(object obj)
+        {
+            var game = obj as GameModel;
+
+            if (game == null)
+            {
+                return false;
+            }
+
+            return this.Id == game.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return this.Id.GetHashCode();
+        }
     }
 }
