@@ -58,6 +58,7 @@ namespace GameLibrary.DAL
         {
             GameModel game = new GameModel()
             {
+                Id = Convert.ToInt32(reader["id"]),
                 Title = Convert.ToString(reader["title"]),
                 ImageUrl = Convert.ToString(reader["image"]),
                 Description = Convert.ToString(reader["description"]),
