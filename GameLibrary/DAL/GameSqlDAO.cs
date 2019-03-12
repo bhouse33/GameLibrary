@@ -19,6 +19,7 @@ namespace GameLibrary.DAL
         public IList<GameModel> GetGames()
         {
             IList<GameModel> games = new List<GameModel>();
+            string sql = "select * from games g join game_category gc on g.id = gc.game_id join category c on c.category_id = gc.id join game_mechanic gm on g.id = gm.game_id join mechanic m on m.mechanic_id = gm.id";
 
             try
             {
@@ -26,7 +27,7 @@ namespace GameLibrary.DAL
                 {
                     conn.Open();
 
-                    SqlCommand cmd = new SqlCommand("select * from games g join game_genre gg on g.id = gg.game_id join genre on genre.genre_id = gg.id", conn);
+                    SqlCommand cmd = new SqlCommand(sql, conn);
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
@@ -34,10 +35,15 @@ namespace GameLibrary.DAL
                         GameModel game = ConvertReaderToGameModel(reader);
                         if (games.Contains(game))
                         {
-                            foreach (string genre in game.Genres)
+                            foreach (string category in game.Categories)
                             {
-                                games[games.IndexOf(game)].Genres.Add(genre);
+                                games[games.IndexOf(game)].Categories.Add(category);
                             }
+                            foreach (string mechanic in game.Mechanics)
+                            {
+                                games[games.IndexOf(game)].Mechanics.Add(mechanic);
+                            }
+
                         }
                         else
                         {
@@ -71,8 +77,8 @@ namespace GameLibrary.DAL
                 Quantity = Convert.ToInt32(reader["quantity"]),
             };
 
-            game.Genres.Add(Convert.ToString(reader["name"]));
-
+            game.Categories.Add(Convert.ToString(reader["category_name"]));
+            game.Mechanics.Add(Convert.ToString(reader["mechanic_name"]));
 
             return game;
         }
@@ -80,13 +86,15 @@ namespace GameLibrary.DAL
         public bool AddGame(GameModel game)
         {
             bool gameAdded = false;
+            string sql = "insert into games values (@title, @image, @desc, @min, @max, @age, @playTime, @weight, @rating, @quantity); select @@identity as id";
+
             try
             {
                 using (SqlConnection conn = new SqlConnection(this.ConnectionString))
                 {
                     conn.Open();
 
-                    SqlCommand cmd = new SqlCommand("insert into games values (@title, @image, @desc, @min, @max, @age, @playTime, @weight, @rating, @quantity); select @@identity as id", conn);
+                    SqlCommand cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@title", game.Title);
                     cmd.Parameters.AddWithValue("@image", game.ImageUrl);
                     cmd.Parameters.AddWithValue("@desc", game.Description);
@@ -100,13 +108,23 @@ namespace GameLibrary.DAL
 
                     int newGameId = Convert.ToInt16(cmd.ExecuteScalar());
 
-                    IDictionary<string, int> genreIds = this.GetGenreDictionary();
+                    IDictionary<string, int> categoryIds = this.GetCategoryDictionary();
+                    IDictionary<string, int> mechanicIds = this.GetMechanicDictionary();
 
-                    foreach (string genre in game.Genres)
+
+                    foreach (string category in game.Categories)
                     {
-                        int genreId = genreIds[genre];
-                        cmd = new SqlCommand("insert into games_genres values (@genre, @game)", conn);
-                        cmd.Parameters.AddWithValue("@genre", genreId);
+                        int categoryId = categoryIds[category];
+                        cmd = new SqlCommand("insert into games_categories values (@category, @game)", conn);
+                        cmd.Parameters.AddWithValue("@category", categoryId);
+                        cmd.Parameters.AddWithValue("@game", newGameId);
+                        cmd.ExecuteNonQuery();
+                    }
+                    foreach (string mechanic in game.Mechanics)
+                    {
+                        int mechanicId = mechanicIds[mechanic];
+                        cmd = new SqlCommand("insert into games_mechanics values (@mechanics, @game)", conn);
+                        cmd.Parameters.AddWithValue("@mechanics", mechanicId);
                         cmd.Parameters.AddWithValue("@game", newGameId);
                         cmd.ExecuteNonQuery();
                     }
@@ -120,9 +138,9 @@ namespace GameLibrary.DAL
             return gameAdded;
         }
 
-        public IDictionary<string,int> GetGenreDictionary()
+        public IDictionary<string, int> GetCategoryDictionary()
         {
-            IDictionary<string, int> genreIds = new Dictionary<string, int>();
+            IDictionary<string, int> categoryIds = new Dictionary<string, int>();
 
             try
             {
@@ -130,14 +148,14 @@ namespace GameLibrary.DAL
                 {
                     conn.Open();
 
-                    SqlCommand cmd = new SqlCommand("select * from genre", conn);
+                    SqlCommand cmd = new SqlCommand("select * from category", conn);
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
-                        string key = Convert.ToString(reader["name"]);
+                        string key = Convert.ToString(reader["category_name"]);
                         int value = Convert.ToInt32(reader["id"]);
-                        genreIds.Add(key, value);
+                        categoryIds.Add(key, value);
                     }
                 }
             }
@@ -146,31 +164,68 @@ namespace GameLibrary.DAL
                 throw;
             }
 
-            return genreIds;
+            return categoryIds;
         }
 
-        public GameModel GetGame(int gameId)
+        public IDictionary<string, int> GetMechanicDictionary()
         {
-            GameModel gameModel = new GameModel();
+            IDictionary<string, int> mechanicIds = new Dictionary<string, int>();
+
             try
             {
                 using (SqlConnection conn = new SqlConnection(this.ConnectionString))
                 {
                     conn.Open();
 
-                    SqlCommand cmd = new SqlCommand("select * from games g join game_genre gg on g.id = gg.game_id join genre on genre.genre_id = gg.id where g.id = @gameId", conn);
+                    SqlCommand cmd = new SqlCommand("select * from mechanic", conn);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        string key = Convert.ToString(reader["mechanic_name"]);
+                        int value = Convert.ToInt32(reader["id"]);
+                        mechanicIds.Add(key, value);
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                throw;
+            }
+
+            return mechanicIds;
+        }
+
+
+        public GameModel GetGame(int gameId)
+        {
+            GameModel gameModel = new GameModel();
+            string sql = "select * from games g join game_category gc on g.id = gc.game_id join category c on c.category_id = gc.id join game_mechanic gm on g.id = gm.game_id join mechanic m on m.mechanic_id = gm.id where g.id = @gameId";
+
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(this.ConnectionString))
+                {
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand(sql, conn);
                     cmd.Parameters.AddWithValue("@gameId", gameId);
                     SqlDataReader reader = cmd.ExecuteReader();
 
                     while (reader.Read())
                     {
                         GameModel game = ConvertReaderToGameModel(reader);
-                        if (gameModel.Equals(game))
+                        if (gameModel.Id == game.Id)
                         {
-                            foreach (string genre in game.Genres)
+                            foreach (string category in game.Categories)
                             {
-                                gameModel.Genres.Add(genre);
+                                gameModel.Categories.Add(category);
                             }
+                            foreach (string mechanic in game.Mechanics)
+                            {
+                                gameModel.Mechanics.Add(mechanic);
+                            }
+
                         }
                         else
                         {
@@ -185,6 +240,42 @@ namespace GameLibrary.DAL
             }
 
             return gameModel;
+        }
+
+        public IList<GameModel> GetGamesByPlayerCount(int minPlayers, int maxPlayers, IList<GameModel> allGames)
+        {
+            var games = from g in allGames where g.MinPlayers >= minPlayers && g.MaxPlayers <= maxPlayers select g;
+
+            return (IList<GameModel>) games;
+        }
+
+        public IList<GameModel> GetGamesByPlayTime(int playTime, IList<GameModel> allGames)
+        {
+            var games = from g in allGames where g.AvgPlayTime <= playTime select g;
+
+            return (IList<GameModel>)games;
+
+        }
+
+        public IList<GameModel> GetGamesByTitle(string title, IList<GameModel> allGames)
+        {
+            var games = from g in allGames where g.Title.Contains(title) select g;
+
+            return (IList<GameModel>)games;
+        }
+
+        public IList<GameModel> GetGameByCategory(string category, IList<GameModel> allGames)
+        {
+            var games = from g in allGames where g.Categories.Contains(category) select g;
+
+            return (IList<GameModel>)games;
+        }
+
+        public IList<GameModel> GetGameByMechanic(string mechanic, IList<GameModel> allGames)
+        {
+            var games = from g in allGames where g.Mechanics.Contains(mechanic) select g;
+
+            return (IList<GameModel>)games;
         }
     }
 }

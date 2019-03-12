@@ -18,7 +18,8 @@ namespace GameLibrary.Models
         public double BGGWeight { get; set; }
         public double BGGRating { get; set; }
         public bool IsBorrowed { get; set; }
-        public IList<string> Genres { get; set; }
+        public IList<string> Categories { get; set; }
+        public IList<string> Mechanics { get; set; }
         public int Quantity { get; set; }
 
         public override bool Equals(object obj)
