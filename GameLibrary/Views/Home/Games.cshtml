@@ -1,0 +1,28 @@
+﻿@model IList<GameModel>
+@{
+    ViewData["Title"] = "Games";
+}
+
+<h2>Games</h2>
+
+<div>
+    @foreach (GameModel game in Model)
+    {
+        <img src="@game.ImageUrl" />
+        <div>
+            <p>@game.Title</p>
+            @foreach (string mechanic in game.Mechanics)
+            {
+                <p>@mechanic</p>
+            }
+            @foreach (string category in game.Categories)
+            {
+                <p>@category</p>
+            }
+        </div>
+        <div>
+            <p>@game.BGGRating</p>
+            <p>@game.BGGWeight</p>
+        </div>
+    }
+</div>
