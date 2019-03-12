@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace GameLibrary.DAL
 {
-    public class GameSqlDAO
+    public class GameSqlDAO : IGameDAO
     {
         private string ConnectionString { get; }
 
@@ -100,7 +100,7 @@ namespace GameLibrary.DAL
 
                     int newGameId = Convert.ToInt16(cmd.ExecuteScalar());
 
-                    Dictionary<string, int> genreIds = this.GetGenreDictionary();
+                    IDictionary<string, int> genreIds = this.GetGenreDictionary();
 
                     foreach (string genre in game.Genres)
                     {
@@ -120,9 +120,9 @@ namespace GameLibrary.DAL
             return gameAdded;
         }
 
-        public Dictionary<string,int> GetGenreDictionary()
+        public IDictionary<string,int> GetGenreDictionary()
         {
-            Dictionary<string, int> genreIds = new Dictionary<string, int>();
+            IDictionary<string, int> genreIds = new Dictionary<string, int>();
 
             try
             {
