@@ -19,7 +19,7 @@ namespace GameLibrary.DAL
         public IList<GameModel> GetGames()
         {
             IList<GameModel> games = new List<GameModel>();
-            string sql = "select * from games g join game_category gc on g.id = gc.game_id join category c on c.category_id = gc.id join game_mechanic gm on g.id = gm.game_id join mechanic m on m.mechanic_id = gm.id";
+            string sql = "select * from games g join game_category gc on g.id = gc.game_id join category c on c.category_id = gc.id join game_mechanics gm on g.id = gm.game_id join mechanic m on m.mechanic_id = gm.id";
 
             try
             {
@@ -200,7 +200,7 @@ namespace GameLibrary.DAL
         public GameModel GetGame(int gameId)
         {
             GameModel gameModel = new GameModel();
-            string sql = "select * from games g join game_category gc on g.id = gc.game_id join category c on c.category_id = gc.id join game_mechanic gm on g.id = gm.game_id join mechanic m on m.mechanic_id = gm.id where g.id = @gameId";
+            string sql = "select * from games g join game_category gc on g.id = gc.game_id join category c on c.category_id = gc.id join game_mechanics gm on g.id = gm.game_id join mechanic m on m.mechanic_id = gm.id where g.id = @gameId";
 
             try
             {
