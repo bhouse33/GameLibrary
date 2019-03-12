@@ -11,5 +11,6 @@ namespace GameLibrary.DAL
         IList<GameModel> GetGames();
         bool AddGame(GameModel game);
         IDictionary<string, int> GetGenreDictionary();
+        GameModel GetGame(int gameId);
     }
 }

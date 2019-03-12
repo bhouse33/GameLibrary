@@ -148,5 +148,43 @@ namespace GameLibrary.DAL
 
             return genreIds;
         }
+
+        public GameModel GetGame(int gameId)
+        {
+            GameModel gameModel = new GameModel();
+            try
+            {
+                using (SqlConnection conn = new SqlConnection(this.ConnectionString))
+                {
+                    conn.Open();
+
+                    SqlCommand cmd = new SqlCommand("select * from games g join game_genre gg on g.id = gg.game_id join genre on genre.genre_id = gg.id where g.id = @gameId", conn);
+                    cmd.Parameters.AddWithValue("@gameId", gameId);
+                    SqlDataReader reader = cmd.ExecuteReader();
+
+                    while (reader.Read())
+                    {
+                        GameModel game = ConvertReaderToGameModel(reader);
+                        if (gameModel.Equals(game))
+                        {
+                            foreach (string genre in game.Genres)
+                            {
+                                gameModel.Genres.Add(genre);
+                            }
+                        }
+                        else
+                        {
+                            gameModel = game;
+                        }
+                    }
+                }
+            }
+            catch (SqlException)
+            {
+                throw;
+            }
+
+            return gameModel;
+        }
     }
 }
