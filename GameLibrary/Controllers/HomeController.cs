@@ -5,39 +5,49 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using GameLibrary.Models;
+using GameLibrary.DAL;
 
 namespace GameLibrary.Controllers
 {
     public class HomeController : Controller
     {
+        private IGameDAO gameDao;
+
+        public HomeController (IGameDAO gameDao)
+        {
+            this.gameDao = gameDao;
+        }
+
         public IActionResult Index()
         {
             return View();
         }
 
-        public IActionResult About()
+        public IActionResult Games()
         {
-            ViewData["Message"] = "Your application description page.";
+            IList<GameModel> games = gameDao.GetGames();
+            return View(games);
+        }
 
+        public IActionResult Detail(int id)
+        {
+            GameModel game = gameDao.GetGame(id);
+            return View(game);
+        }
+
+        [HttpGet]
+        public IActionResult AddGame()
+        {
             return View();
         }
 
-        public IActionResult Contact()
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AddGame(GameModel game)
         {
-            ViewData["Message"] = "Your contact page.";
-
-            return View();
+            return RedirectToAction("Detail");
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
     }
 }
