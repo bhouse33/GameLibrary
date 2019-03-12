@@ -19,7 +19,7 @@ namespace GameLibrary.DAL
         public IList<GameModel> GetGames()
         {
             IList<GameModel> games = new List<GameModel>();
-            string sql = "select * from games g join game_category gc on g.id = gc.game_id join category c on c.id = gc.category_id join game_mechanics gm on g.id = gm.game_id join mechanic m on m.id = gm.mechanic_id";
+            string sql = "select * from games g left join game_category gc on g.id = gc.game_id left join category c on c.id = gc.category_id left join game_mechanics gm on g.id = gm.game_id left join mechanic m on m.id = gm.mechanic_id";
 
             try
             {
@@ -77,8 +77,15 @@ namespace GameLibrary.DAL
                 Quantity = Convert.ToInt32(reader["quantity"]),
             };
 
-            game.Categories.Add(Convert.ToString(reader["category_name"]));
-            game.Mechanics.Add(Convert.ToString(reader["mechanic_name"]));
+            if (Convert.ToString(reader["category_name"]) != null)
+            {
+                game.Categories.Add(Convert.ToString(reader["category_name"]));
+            }
+
+            if (Convert.ToString(reader["mechanic_name"]) != null)
+            {
+                game.Mechanics.Add(Convert.ToString(reader["mechanic_name"]));
+            }
 
             return game;
         }
@@ -200,7 +207,7 @@ namespace GameLibrary.DAL
         public GameModel GetGame(int gameId)
         {
             GameModel gameModel = new GameModel();
-            string sql = "select * from games g join game_category gc on g.id = gc.game_id join category c on c.id = gc.category_id join game_mechanics gm on g.id = gm.game_id join mechanic m on m.id = gm.mechanic_id where g.id = @gameId";
+            string sql = "select * from games g left join game_category gc on g.id = gc.game_id left join category c on c.id = gc.category_id left join game_mechanics gm on g.id = gm.game_id left join mechanic m on m.id = gm.mechanic_id where g.id = @gameId";
 
             try
             {
@@ -246,7 +253,7 @@ namespace GameLibrary.DAL
         {
             var games = from g in allGames where g.MinPlayers >= minPlayers && g.MaxPlayers <= maxPlayers select g;
 
-            return (IList<GameModel>) games;
+            return (IList<GameModel>)games;
         }
 
         public IList<GameModel> GetGamesByPlayTime(int playTime, IList<GameModel> allGames)
