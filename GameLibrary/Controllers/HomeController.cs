@@ -35,6 +35,17 @@ namespace GameLibrary.Controllers
             return View(game);
         }
 
+        public IActionResult Search()
+        {
+            return View();
+        }
+
+        //public IActionResult SearchResult(GameModel model)
+        //{
+        //    IList<GameModel> games = gameDao.
+        //    return View(model);
+        //}
+
         [HttpGet]
         public IActionResult AddGame()
         {

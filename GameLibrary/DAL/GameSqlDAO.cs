@@ -76,13 +76,13 @@ namespace GameLibrary.DAL
                 BGGWeight = Convert.ToDouble(reader["bgg_weight"]),
                 Quantity = Convert.ToInt32(reader["quantity"]),
             };
-
-            if (Convert.ToString(reader["category_name"]) != null)
+            game.Categories = new List<string>();
+            if ((reader["category_name"]) != null)
             {
                 game.Categories.Add(Convert.ToString(reader["category_name"]));
             }
-
-            if (Convert.ToString(reader["mechanic_name"]) != null)
+            game.Mechanics = new List<string>();
+            if ((reader["mechanic_name"]) != null)
             {
                 game.Mechanics.Add(Convert.ToString(reader["mechanic_name"]));
             }
