@@ -194,6 +194,34 @@ insert into games (id, title, [image], [description], min_players, max_players, 
 
 set identity_insert games off;
 
+
+
+insert into game_mechanics (game_id, mechanic_id) 
+values 
+(1, 4),
+(1,5),
+(1, 12),
+(1,32),
+(2, 7),
+(2, 17),
+(2, 28),
+(3, 4),
+(3, 11),
+(3, 26);
+
+
+insert into game_category (game_id, category_id)
+values
+(1, 41),
+(2, 9),
+(2, 18),
+(2, 27),
+(2, 48),
+(3, 19);
+
 COMMIT TRANSACTION;
 
 
+select * from game_category
+
+select * from game_mechanics
