@@ -72,7 +72,36 @@ CREATE TABLE game_mechanics(
 	mechanic_id	int			not null,
 
 	constraint fk_games_mechanics foreign key (game_id) references games(id),
-	constraint fk_mechanics foreign key (mechanic_id) references mechanic(id)
+	constraint fk_mechanics foreign key (mechanic_id) references mechanic(id),
+	constraint pk_game_mechanics primary key (game_id, mechanic_id)
+);
+
+CREATE TABLE [user] (
+	id			int			NOT NULL,
+	first_name	nvarchar(25)	NOT NULL,
+	last_name	nvarchar(25)	NOT NULL,
+	email		nvarchar(50)	NOT NULL
+	
+	constraint pk_user_id primary key (id)
+);
+
+CREATE TABLE rating (
+	id				int			NOT NULL,
+	[user_id]		int			NOT NULL,
+	score			int			NOT NULL CHECK (score BETWEEN 1 AND 5),
+	timestamp		date		NOT NULL,
+
+	constraint pk_rating_id primary key (id),
+	constraint fk_rating_user_id foreign key ([user_id]) references [user](id)
+);
+
+CREATE TABLE game_rating (
+	rating_id		int			NOT NULL,
+	game_id			int			NOT NULL,
+
+	constraint fk_game_rating_game_id	foreign key (game_id) references games(id),
+	constraint fk_game_rating_rating_id	foreign key (rating_id) references rating(id),
+	constraint pk_game_rating primary key (rating_id, game_id)
 );
 set identity_insert mechanic ON;
 
@@ -220,8 +249,3 @@ values
 (3, 19);
 
 COMMIT TRANSACTION;
-
-
-select * from game_category
-
-select * from game_mechanics
